@@ -1,0 +1,7 @@
+BADR,1,80,10,5,Good,1,90
+MOHAMMED,2,60,5,2,Weak,2,40
+ANAS,3,100,15,10,Excellent,0,100
+AHMED,4,50,4,1,Weak,3,30
+MSG:4:Teacher: Work Harder Ahmed
+ALAA,5,90,12,6,Good,0,70
+ISSE,6,70,8,4,Average,1,55
