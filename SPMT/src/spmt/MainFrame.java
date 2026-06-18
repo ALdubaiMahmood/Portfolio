@@ -15,7 +15,7 @@ public class MainFrame extends JFrame {
      * POLYMORPHISM in action:
      * currentUser is of type User (the abstract parent class).
      * At runtime it can hold a Teacher OR a Student object.
-     * This is polymorphism -- one variable, multiple forms.
+     * This is polymorphism  one variable, multiple forms.
      */
     User currentUser;
 
@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
 
         root.add(new WelcomePanel(this),          "Welcome");
         root.add(new RolePanel(this),             "Role");
+        root.add(new TeacherLoginPanel(this),     "TeacherLogin");
         root.add(new TeacherPanel(this),          "Teacher");
         root.add(new StudentLoginPanel(this),     "Login");
 

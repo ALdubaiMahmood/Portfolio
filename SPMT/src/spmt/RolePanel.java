@@ -27,7 +27,7 @@ public class RolePanel extends JPanel {
 
         // Uses loginAsTeacher() which sets currentUser = new Teacher()
         // This demonstrates POLYMORPHISM in MainFrame
-        teacherBtn.addActionListener(e -> app.loginAsTeacher());
+        teacherBtn.addActionListener(e -> app.show("TeacherLogin"));
         studentBtn.addActionListener(e -> app.show("Login"));
         backBtn.addActionListener(e -> app.show("Welcome"));
 

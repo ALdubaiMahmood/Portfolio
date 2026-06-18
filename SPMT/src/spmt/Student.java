@@ -79,4 +79,23 @@ public class Student extends User implements Evaluatable {
             return "Average";
         return "Excellent";
     }
+
+    /**
+     * BADGE SYSTEM:
+     * Returns a badge label for students who have earned 90+ points.
+     * Returns null if the student has not yet earned a badge.
+     */
+    public String getBadge() {
+        if (points >= 100) return "LEGEND";
+        if (points >= 95)  return "ELITE";
+        if (points >= 90)  return "HONOR ROLL";
+        return null;  // No badge below 90
+    }
+
+    /**
+     * Returns true if the student has earned any badge (90+ points).
+     */
+    public boolean hasBadge() {
+        return points >= 90;
+    }
 }

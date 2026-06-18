@@ -13,7 +13,7 @@ public class TeacherPanel extends JPanel {
 
     private static final String[] COLS = {
         "Name", "ID", "Attendance", "Study Hrs",
-        "Participation", "Behavior", "Assignments", "Points", "Status"
+        "Participation", "Behavior", "Assignments", "Points", "Badge", "Status"
     };
 
     // Colors
@@ -39,7 +39,7 @@ public class TeacherPanel extends JPanel {
         refresh();
     }
 
-    // -- Top bar with title and Back button ----------------------
+    //  Top bar with title and Back button 
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(BG);
@@ -56,7 +56,7 @@ public class TeacherPanel extends JPanel {
         return bar;
     }
 
-    // -- Student table --------------------------------------------
+    // Student table 
     private JScrollPane buildTable() {
         model = new DefaultTableModel(COLS, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -75,8 +75,8 @@ public class TeacherPanel extends JPanel {
         table.getTableHeader().setForeground(TEXT2);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        // Color the Status column
-        table.getColumnModel().getColumn(8).setCellRenderer(new DefaultTableCellRenderer() {
+        // Color the Status column (now at index 9)
+        table.getColumnModel().getColumn(9).setCellRenderer(new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(
                     JTable t, Object v, boolean sel, boolean foc, int r, int c) {
                 super.getTableCellRendererComponent(t, v, sel, foc, r, c);
@@ -88,6 +88,38 @@ public class TeacherPanel extends JPanel {
                 return this;
             }
         });
+
+        // Badge column (index 8) — rendered as drawn emblem
+        table.getColumnModel().getColumn(8).setCellRenderer(new TableCellRenderer() {
+            private final java.util.Map<String, BadgePanel> cache = new java.util.HashMap<>();
+
+            public Component getTableCellRendererComponent(
+                    JTable t, Object v, boolean sel, boolean foc, int r, int c) {
+                String badge = v == null ? "" : v.toString();
+                if (badge.equals("—") || badge.isEmpty()) {
+                    JLabel none = new JLabel("—", SwingConstants.CENTER);
+                    none.setForeground(TEXT2);
+                    none.setBackground(sel ? new Color(50, 60, 90) : CARD);
+                    none.setOpaque(true);
+                    return none;
+                }
+                if (!cache.containsKey(badge)) {
+                    BadgePanel.Tier tier;
+                    switch (badge) {
+                        case "LEGEND":    tier = BadgePanel.Tier.LEGEND;    break;
+                        case "ELITE":     tier = BadgePanel.Tier.ELITE;     break;
+                        default:          tier = BadgePanel.Tier.HONOR_ROLL; break;
+                    }
+                    BadgePanel bp = new BadgePanel(28, tier);
+                    bp.setBackground(CARD);
+                    cache.put(badge, bp);
+                }
+                BadgePanel bp = cache.get(badge);
+                bp.setBackground(sel ? new Color(50, 60, 90) : CARD);
+                return bp;
+            }
+        });
+        table.setRowHeight(32); // slightly taller rows for the badge icon
 
         // Set default renderer for other cells (dark background)
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
@@ -109,7 +141,7 @@ public class TeacherPanel extends JPanel {
         return scroll;
     }
 
-    // -- Bottom button bar: Add, Delete, Note ---------------------
+    //  Bottom button bar: Add, Delete, Note 
     private JPanel buildButtons() {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         bar.setBackground(BG);
@@ -134,7 +166,7 @@ public class TeacherPanel extends JPanel {
         return bar;
     }
 
-    // -- Add Student -----------------------------------------------
+    //  Add Student
     private void addStudent() {
         JTextField nameF  = field();
         JTextField idF    = field();
@@ -196,7 +228,7 @@ public class TeacherPanel extends JPanel {
         }
     }
 
-    // -- Delete Student --------------------------------------------
+    //  Delete Student 
     private void deleteStudent() {
         int row = table.getSelectedRow();
         if (row < 0) {
@@ -219,7 +251,7 @@ public class TeacherPanel extends JPanel {
         info(name + " has been deleted.");
     }
 
-    // -- Send Note -------------------------------------------------
+    //  Send Note 
     private void sendNote() {
         int row = table.getSelectedRow();
         if (row < 0) {
@@ -257,7 +289,7 @@ public class TeacherPanel extends JPanel {
         info("Note sent to " + name + "!");
     }
 
-    // -- Refresh table (sorted by status) -------------------------
+    //  Refresh table (sorted by status) 
     public void refresh() {
         ArrayList<Student> sorted = new ArrayList<>(app.students);
         sorted.sort(Comparator
@@ -275,6 +307,7 @@ public class TeacherPanel extends JPanel {
                 s.getBehavior(),
                 s.getAssignments(),
                 s.getPoints(),
+                s.hasBadge() ? s.getBadge() : "—",
                 s.getStatus()
             });
         }
@@ -287,7 +320,7 @@ public class TeacherPanel extends JPanel {
         return 2;
     }
 
-    // -- Helpers ---------------------------------------------------
+    //  Helpers 
     private JButton btn(String text, Color bg) {
         JButton b = new JButton(text);
         b.setFont(new Font("Segoe UI", Font.BOLD, 13));

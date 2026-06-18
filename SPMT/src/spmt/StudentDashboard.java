@@ -19,32 +19,120 @@ public class StudentDashboard extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
 
-        // -- Top bar
-        JPanel top = new JPanel(new BorderLayout());
+        // Top bar
+        JPanel top = new JPanel(new BorderLayout(10, 0));
         top.setBackground(BG);
+
+        JPanel welcomeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        welcomeRow.setBackground(BG);
 
         JLabel welcome = new JLabel("Welcome, " + s.getName() + "   (ID: " + s.getId() + ")");
         welcome.setFont(new Font("Segoe UI", Font.BOLD, 20));
         welcome.setForeground(TEXT);
-        top.add(welcome, BorderLayout.WEST);
+        welcomeRow.add(welcome);
+
+        // Show badge inline in top bar if earned
+        if (s.hasBadge()) {
+            welcomeRow.add(buildBadgeLabel(s));
+        }
+
+        top.add(welcomeRow, BorderLayout.WEST);
 
         JButton back = btn("Back");
         back.addActionListener(e -> app.show("Role"));
         top.add(back, BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
-        // -- Center: left = stats, right = messages
+        //  Center: left = stats, right = messages
         JPanel center = new JPanel(new GridLayout(1, 2, 16, 0));
         center.setBackground(BG);
         center.add(buildStatsCard(s));
         center.add(buildMessagesCard(s));
         add(center, BorderLayout.CENTER);
 
-        // -- Bottom: certificate or progress
-        add(buildCertPanel(s), BorderLayout.SOUTH);
+        //  Bottom: badge showcase (if earned) + certificate
+        add(buildBottomPanel(s), BorderLayout.SOUTH);
     }
 
-    // -- Stats card ------------------------------------------------
+    // -- Badge graphic (small, for top bar) -----------------------
+    private BadgePanel buildBadgeLabel(Student s) {
+        return BadgePanel.forStudent(s, 44);
+    }
+
+    //  Bottom panel: badge showcase + certificate 
+    private JPanel buildBottomPanel(Student s) {
+        JPanel outer = new JPanel();
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.setBackground(BG);
+
+        if (s.hasBadge()) {
+            outer.add(buildBadgeShowcase(s));
+            outer.add(Box.createVerticalStrut(8));
+        }
+
+        outer.add(buildCertPanel(s));
+        return outer;
+    }
+
+    //  Badge showcase card (full-width, with drawn emblem) 
+    private JPanel buildBadgeShowcase(Student s) {
+        String badge = s.getBadge();
+        Color badgeColor;
+        String description;
+
+        switch (badge) {
+            case "LEGEND":
+                badgeColor = new Color(201, 150, 58);
+                description = "Achieved the maximum 100 points — a true legend!";
+                break;
+            case "ELITE":
+                badgeColor = new Color(180, 120, 255);
+                description = "Outstanding performance with 95–99 points — elite tier!";
+                break;
+            default: // HONOR ROLL
+                badgeColor = new Color(93, 122, 255);
+                description = "Excellent achievement with 90–94 points — honor roll!";
+                break;
+        }
+
+        JPanel card = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 8));
+        card.setBackground(new Color(26, 31, 46));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(badgeColor, 2),
+                BorderFactory.createEmptyBorder(6, 16, 6, 16)));
+
+        // The drawn badge emblem
+        BadgePanel emblem = BadgePanel.forStudent(s, 90);
+        card.add(emblem);
+
+        JPanel textCol = new JPanel();
+        textCol.setLayout(new BoxLayout(textCol, BoxLayout.Y_AXIS));
+        textCol.setOpaque(false);
+
+        JLabel badgeLbl = new JLabel(badge + " BADGE");
+        badgeLbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        badgeLbl.setForeground(badgeColor);
+        textCol.add(badgeLbl);
+
+        textCol.add(Box.createVerticalStrut(4));
+
+        JLabel descLbl = new JLabel(description);
+        descLbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        descLbl.setForeground(TEXT2);
+        textCol.add(descLbl);
+
+        textCol.add(Box.createVerticalStrut(6));
+
+        JLabel earnedLbl = new JLabel("Earned by " + s.getName());
+        earnedLbl.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        earnedLbl.setForeground(new Color(badgeColor.getRed(), badgeColor.getGreen(), badgeColor.getBlue(), 180));
+        textCol.add(earnedLbl);
+
+        card.add(textCol);
+        return card;
+    }
+
+    //  Stats card
     private JPanel buildStatsCard(Student s) {
         JPanel card = new JPanel(new GridLayout(8, 2, 8, 8));
         card.setBackground(CARD);
@@ -87,7 +175,7 @@ public class StudentDashboard extends JPanel {
         panel.add(v);
     }
 
-    // -- Messages card ---------------------------------------------
+    //  Messages card 
     private JPanel buildMessagesCard(Student s) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(CARD);
@@ -129,7 +217,7 @@ public class StudentDashboard extends JPanel {
         return card;
     }
 
-    // -- Certificate panel -----------------------------------------
+    //  Certificate panel 
     private JPanel buildCertPanel(Student s) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.setBackground(BG);
